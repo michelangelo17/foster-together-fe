@@ -1,3 +1,5 @@
+# Psst! Checkout the new serverless branch!
+
 # Foster Together
 
 You can find the deployed project at [https://app.fostertogether.co/signup](https://app.fostertogether.co/signup).
