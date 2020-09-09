@@ -35,18 +35,16 @@ import ReviewInfo from '../signUpComponents/ReviewInfo'
 import { register } from '../../../redux/thunks/authThunks'
 
 const user = {
-  first_name: 'testing',
-  last_name: 'again',
-  phone: '1234567890',
-  email: 'm@michelangelo.codes',
+  first_name: 'Jane',
+  last_name: 'Smith',
+  phone: '5035559876',
+  email: 'jane@michelangelo.codes',
   password: '123456',
   confirmPassword: '123456',
-  address: 'a street',
-  city: 'somewhere',
-  zip: '55555',
-  state: 'AL',
-  latitude: '45646543415',
-  longitude: '54654561515',
+  address: '701 SW 6th Ave',
+  city: 'Portland',
+  zip: '97205',
+  state: 'OR',
 }
 
 const handleNext = (
