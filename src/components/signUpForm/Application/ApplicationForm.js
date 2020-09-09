@@ -14,8 +14,8 @@ import {
   Submit,
   Error,
 } from './ApplicationStyles'
-import { invokeAPIGateway } from '../../../aws'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { sendMemberApplication } from '../../../redux/thunks/memThunks'
 
 export const initialValues = {
   app_q1_a: {
@@ -221,9 +221,10 @@ const RadioTwo = ({ values, setFieldValue, errors, touched }) => {
           Foster care is meant to be temporary. After their parents work to
           create a safe home, 60% of kids in Colorado foster care go home to mom
           or dad. It's important to give kids and families continuous support,
-          including aftimport {useSelector} from 'react-redux'; er the kids go
-          home to their family of origin. Are you open to supporting a family
-          whose children have been sent home post-foster care?
+          including aftimport {(useSelector, useDispatch)} from 'react-redux';
+          er the kids go home to their family of origin. Are you open to
+          supporting a family whose children have been sent home post-foster
+          care?
           <CheckLabel onClick={() => handleClick(1)}>
             <Checkbox radio checked={values.app_q4 === 1} />
             Yes, I'm open to supporting a family whose children have been sent
@@ -306,18 +307,9 @@ const RadioThree = ({ values, setFieldValue, errors, touched }) => {
 const AppForm = () => {
   const { push } = useHistory()
   const { email } = useSelector((state) => state.auth.userInfo)
+  const dispatch = useDispatch()
   const handleSubmit = async (values) => {
-    try {
-      await invokeAPIGateway(
-        process.env.REACT_APP_API_GATEWAY,
-        `members/application/${email}`,
-        'PUT',
-        values
-      )
-      push('/userProfile')
-    } catch (error) {
-      console.log(error)
-    }
+    dispatch(sendMemberApplication({ ...values, email }, push))
   }
   return (
     <Page>

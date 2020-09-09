@@ -55,13 +55,28 @@ export const postMember = (user, push) => async (dispatch) => {
   } else push('/login')
 }
 
+export const sendMemberApplication = (values, push) => async (dispatch) => {
+  try {
+    await invokeAPIGateway(
+      process.env.REACT_APP_API_GATEWAY,
+      'members/application/',
+      'PUT',
+      values
+    )
+    push('/userProfile')
+  } catch (error) {
+    dispatch(setMemError(error.message))
+    // console.log(error)
+  }
+}
+
 export const updateMemberApplicationStatus = (id, app_status) => async (
   dispatch
 ) => {
   try {
     await invokeAPIGateway(
       process.env.REACT_APP_API_GATEWAY,
-      `members/${id}`,
+      `members/application/decision/${id}`,
       'PUT',
       { app_status }
     )
@@ -73,11 +88,10 @@ export const updateMemberApplicationStatus = (id, app_status) => async (
 }
 
 export const sendApplicationDecisionEmail = (values) => async (dispatch) => {
-  console.log('Sent data: ', values)
   try {
     const res = await invokeAPIGateway(
       process.env.REACT_APP_API_GATEWAY,
-      'members/application',
+      'members/application/email',
       'POST',
       values
     )
