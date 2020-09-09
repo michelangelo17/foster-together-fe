@@ -57,7 +57,7 @@ export default function TrainingThreeFour() {
               </Step>
             </div>
             <Media>
-              <img src={require('./train3.png')} />
+              <img src={require('./train3.png')} alt='Young Family' />
             </Media>
           </MediaWrapper>
           <Step>

@@ -4,52 +4,96 @@ import {
   setSelectedMember,
 } from '../slices/memSlice'
 import { setUserInfo } from '../slices/authSlice'
-import { axiosWithBaseURL } from '../../utils/axios/axiosWithBaseUrl'
-import axiosWithAuth from '../../utils/axios/axiosWithAuth'
-import axios from 'axios'
+import { invokeAPIGateway } from '../../aws'
 
-export const getMembers = () => async dispatch => {
+export const getMembers = () => async (dispatch) => {
   try {
-    const { data } = await axiosWithAuth().get('/members')
-    dispatch(setMembersArray(data))
-  } catch (e) {
-    e.response
-      ? dispatch(setMemError(e.response.data))
-      : dispatch(setMemError(e))
+    const data = await invokeAPIGateway(
+      process.env.REACT_APP_API_GATEWAY,
+      'members',
+      'GET'
+    )
+
+    dispatch(setMembersArray(await data.json()))
+  } catch (error) {
+    dispatch(setMemError(error.message))
+    // console.log(error)
   }
 }
 
-export const getMemberById = id => async dispatch => {
+export const getMemberById = (id) => async (dispatch) => {
   try {
-    const { data } = await axiosWithAuth().get(`/members/${id}`)
-    dispatch(setSelectedMember(data))
-  } catch (e) {
-    e.response
-      ? dispatch(setMemError(e.response.data))
-      : dispatch(setMemError(e))
+    const data = await invokeAPIGateway(
+      process.env.REACT_APP_API_GATEWAY,
+      `/members/${id}`,
+      'GET'
+    )
+    const { Item } = await data.json()
+    dispatch(setSelectedMember(Item))
+  } catch (error) {
+    dispatch(setMemError(error.message))
   }
 }
 
-export const postMember = (type, values, push) => async dispatch => {
-  const map = await axios.get(
-    `https://api.mapbox.com/geocoding/v5/mapbox.places/${values.address}%20${values.city}%20${values.state}.json?country=US&access_token=pk.eyJ1IjoiYnNjaGF0emoiLCJhIjoiY2s3MHlnMGRiMDFndjNmbGN5NGN6aDllcSJ9.6U2mM86ENxVdKiXRRt6bYw`
-  )
-  const user = {
-    ...values,
-    longitude: map.data.features[0].geometry.coordinates[0],
-    latitude: map.data.features[0].geometry.coordinates[1],
+export const postMember = (user, push) => async (dispatch) => {
+  try {
+    await invokeAPIGateway(
+      process.env.REACT_APP_API_GATEWAY,
+      'members',
+      'POST',
+      user
+    )
+  } catch (error) {
+    dispatch(setMemError(error.message))
+    // console.log(error)
   }
 
+  dispatch(setUserInfo(user))
+
+  if (user.type === 'neighbors') {
+    push('/application')
+  } else push('/login')
+}
+
+export const updateMemberApplicationStatus = (id, app_status) => async (
+  dispatch
+) => {
   try {
-    const { data } = await axiosWithBaseURL().post(`/members/${type}`, user)
-    localStorage.setItem('token', data.token)
-    if (type === 'neighbors') {
-      push('/application')
-    } else push('/userProfile')
-    dispatch(setUserInfo(data.user))
-  } catch (e) {
-    e.response
-      ? dispatch(setMemError(e.response.data))
-      : dispatch(setMemError(e))
+    await invokeAPIGateway(
+      process.env.REACT_APP_API_GATEWAY,
+      `members/${id}`,
+      'PUT',
+      { app_status }
+    )
+    dispatch(getMemberById(id))
+  } catch (error) {
+    dispatch(setMemError(error.message))
+    // console.log(error)
   }
 }
+
+export const sendApplicationDecisionEmail = (values) => async (dispatch) => {
+  console.log('Sent data: ', values)
+  try {
+    const res = await invokeAPIGateway(
+      process.env.REACT_APP_API_GATEWAY,
+      'members/application',
+      'POST',
+      values
+    )
+    // Res will be used for message later
+    console.log(res)
+  } catch (error) {
+    dispatch(setMemError(error.message))
+  }
+}
+
+// *** FOR MAP DATA: Pust before the try/catch in postMember ***
+// *************************************************************
+
+// const map = await axios.get(
+//   `https://api.mapbox.com/geocoding/v5/mapbox.places/${user.address}%20${user.city}%20${user.state}.json?country=US&access_token=${MAPBOX_KEY}`
+// )
+
+// user.longitude = map.data.features[0].geometry.coordinates[0]
+// user.latitude = map.data.features[0].geometry.coordinates[1]

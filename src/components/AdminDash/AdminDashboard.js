@@ -13,7 +13,7 @@ export default function Distance() {
   useEffect(() => {
     dispatch(getMembers())
   }, [dispatch])
-  const { membersArray } = useSelector(state => state.mem)
+  const { membersArray } = useSelector((state) => state.mem)
   return (
     <>
       <Navigation />

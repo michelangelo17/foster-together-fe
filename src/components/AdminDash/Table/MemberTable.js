@@ -13,61 +13,56 @@ import {
 } from './TableStyle'
 import { Circle } from '../AdminDashPics/icons'
 
+const pickColor = (status) =>
+  status === 1
+    ? 'yellow'
+    : status === 2
+    ? 'green'
+    : status === 3
+    ? 'red'
+    : 'orange'
+
 const columns = [
   { Header: 'FULL NAME', accessor: 'name' },
   {
     Header: 'MEMBER TYPE',
     accessor: 'type',
-    Cell: props => (
+    Cell: (props) => (
       <img
         src={props.data[props.row.id].type}
-        height={45}
-        width={45}
+        height={30}
+        width={30}
         alt='either an f for family or n for neighbor'
       />
     ),
   },
   { Header: 'MATCH', accessor: 'match' },
   { Header: 'CITY', accessor: 'city' },
+  { Header: 'STATE', accessor: 'state' },
+  { Header: 'ZIP', accessor: 'zip' },
   {
     Header: 'APP',
     accessor: 'application',
-    Cell: props => {
+    Cell: (props) => {
       const status = props.data[props.row.id].application
-      return (
-        <Circle
-          color={
-            status === 1
-              ? 'yellow'
-              : status === 2
-              ? 'green'
-              : status === 3
-              ? 'red'
-              : 'orange'
-          }
-        />
-      )
+      return <Circle color={pickColor(status)} />
     },
   },
   {
     Header: 'BGC',
     accessor: 'background',
-    Cell: props =>
-      props.data[props.row.id].background ? (
-        <Circle color={'green'} />
-      ) : (
-        <Circle color={'red'} />
-      ),
+    Cell: (props) => {
+      const status = props.data[props.row.id].background
+      return <Circle color={pickColor(status)} />
+    },
   },
   {
     Header: 'TRN',
     accessor: 'training',
-    Cell: props =>
-      props.data[props.row.id].training ? (
-        <Circle color={'green'} />
-      ) : (
-        <Circle color={'red'} />
-      ),
+    Cell: (props) => {
+      const status = props.data[props.row.id].training
+      return <Circle color={pickColor(status)} />
+    },
   },
   {
     Header: 'EMAIL',
@@ -81,12 +76,14 @@ const columns = [
 
 function mapping(members) {
   const rows = []
-  members.map(data =>
+  members.map((data) =>
     rows.push({
-      name: `${data.last_name}, ${data.first_name}`,
+      name: `${data.first_name} ${data.last_name}`,
       type: data.type === 'neighbors' ? neighbors : families,
       match: 'none',
       city: data.city,
+      state: data.state,
+      zip: data.zip,
       userType: data.type,
       application: data.application,
       background: data.background,
@@ -121,9 +118,9 @@ function Table({ columns, data, props }) {
     <TableContain>
       <TableHtml {...getTableProps()}>
         <thead>
-          {headerGroups.map(headerGroup => (
+          {headerGroups.map((headerGroup) => (
             <TableRow {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
+              {headerGroup.headers.map((column) => (
                 <TableHeader
                   {...column.getHeaderProps(column.getSortByToggleProps())}
                 >
@@ -141,11 +138,11 @@ function Table({ columns, data, props }) {
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {firstPageRows.map(row => {
+          {firstPageRows.map((row) => {
             prepareRow(row)
             return (
               <TableRow {...row.getRowProps()}>
-                {row.cells.map(cell => {
+                {row.cells.map((cell) => {
                   return (
                     <TableData
                       onClick={() =>

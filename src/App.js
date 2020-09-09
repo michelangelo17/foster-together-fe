@@ -10,21 +10,65 @@ import SignUp from './components/signUpForm/SignUpOverlay/SignUpOverlay'
 import AdminDash from './components/AdminDash/AdminDashboard'
 import Profile from './components/AdminDash/Profile/Profile'
 import Application from './components/signUpForm/Application/Application'
-import Training from './components/Training/Module3/TrainingOverlay'
+import Training from './components/Training/module-3/TrainingOverlay'
 import ModuleLetter from './components/Training/module-0/trainingLetter'
 import StartTraining from './components/Training/module-1/moduleOneLetter'
 import ModuleOne from './components/Training/module-1/moduleOne'
 import ModuleTwo from './components/Training/module-2'
-import ModuleThree from './components/Training/Module3/TrainingOverlay'
+import ModuleThree from './components/Training/module-3/TrainingOverlay'
 import ModuleFour from './components/Training/module-4'
 import ModuleFive from './components/Training/module-5/moduleFive'
 import UserProfile from './components/AdminDash/Profile/User/UserProfile'
+import Amplify, { Auth } from 'aws-amplify'
+import { useDispatch } from 'react-redux'
+import jwtDecode from 'jwt-decode'
+import {
+  setUserType,
+  setAuthError,
+  setUserInfo,
+} from './redux/slices/authSlice'
 
-function App() {
+const App = () => {
+  const dispatch = useDispatch()
+
   useEffect(() => {
     initGA('UA-159166357-1')
     PageView()
-  }, [])
+
+    Amplify.configure({
+      Auth: {
+        mandatorySignIn: true,
+        region: process.env.REACT_APP_COGNITO_REGION,
+        userPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
+        userPoolWebClientId: process.env.REACT_APP_COGNITO_APP_CLIENT_ID,
+      },
+    })
+
+    const getSession = async () => {
+      try {
+        const session = await Auth.currentSession()
+        const sessionIdInfo = jwtDecode(session.getIdToken().jwtToken)
+        const userType = sessionIdInfo['cognito:groups'][0]
+
+        dispatch(setUserType(userType))
+
+        const { attributes } = await Auth.currentAuthenticatedUser()
+
+        dispatch(
+          setUserInfo({
+            email: attributes.email,
+            first_name: attributes['custom:first_name'] || '',
+          })
+        )
+      } catch (error) {
+        dispatch(setAuthError(error.message))
+        dispatch(setUserType(null))
+        dispatch(setUserInfo(null))
+      }
+    }
+
+    getSession()
+  }, [dispatch])
   return (
     <>
       <GlobalStyle />

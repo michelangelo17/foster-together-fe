@@ -10,7 +10,7 @@ import {
   MediaWrapper,
   Media,
   Video,
-  Footer,
+  // Footer,
   Form,
   Label,
   Input,
@@ -18,7 +18,7 @@ import {
   Submit,
   Div,
 } from '../TrainStyles'
-import Stepper from '../TrainingStepper'
+// import Stepper from '../TrainingStepper'
 
 import TrainingNav from '../TrainingNav/NavBar'
 
@@ -223,7 +223,7 @@ function ModuleOne() {
             window.scrollTo({ top: 0, behavior: 'smooth' })
           }}
         >
-          {props => (
+          {(props) => (
             <FormikForm>
               <Context8 {...props} />
             </FormikForm>

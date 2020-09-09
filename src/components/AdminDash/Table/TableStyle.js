@@ -24,7 +24,7 @@ export const TableHeader = styled.th`
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 180px;
+  min-width: 10px;
   border-bottom: 1px solid #91bccf;
   width: 100%;
   :last-child {
@@ -37,8 +37,8 @@ export const TableData = styled.td`
   align-items: center;
   color: #5580aa;
   font-size: 1.6rem;
-  justify-content: space-evenly;
-  min-width: 180px;
+  justify-content: space-around;
+  min-width: 10px;
   border-bottom: 1px solid #91bccf;
   width: 100%;
 

@@ -3,7 +3,6 @@ import { useHistory } from 'react-router-dom'
 import { Formik, Form } from 'formik'
 import { PageView } from '../../../utils/analytics/index'
 import { useDispatch } from 'react-redux'
-import { postMember } from '../../../redux/thunks/memThunks'
 import { ContactSchema, LocationSchema } from '../../../utils/yupSchemas'
 import { FlexCenter } from '../../../GlobalStyles'
 import {
@@ -33,20 +32,21 @@ import backArrow from '../../../images/icons/back-arrow.svg'
 import ContactInfo from '../signUpComponents/ContactInfo'
 import LocationInfo from '../signUpComponents/LocationInfo'
 import ReviewInfo from '../signUpComponents/ReviewInfo'
+import { register } from '../../../redux/thunks/authThunks'
 
 const user = {
-  first_name: '',
-  last_name: '',
-  phone: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-  address: '',
-  city: '',
-  zip: '',
-  state: '',
-  latitude: '',
-  longitude: '',
+  first_name: 'testing',
+  last_name: 'again',
+  phone: '1234567890',
+  email: 'm@michelangelo.codes',
+  password: '123456',
+  confirmPassword: '123456',
+  address: 'a street',
+  city: 'somewhere',
+  zip: '55555',
+  state: 'AL',
+  latitude: '45646543415',
+  longitude: '54654561515',
 }
 
 const handleNext = (
@@ -62,8 +62,8 @@ const handleNext = (
   } else if (activeStep === 1) {
     setActiveStep(activeStep + 1)
   } else if (activeStep === 2) {
-    if (isNeighbor) dispatch(postMember('neighbors', user, push))
-    else dispatch(postMember('families', user, push))
+    if (isNeighbor) dispatch(register({ ...user, type: 'neighbors' }, push))
+    else dispatch(register({ ...user, type: 'families' }, push))
   }
 }
 
@@ -150,7 +150,7 @@ const FormWrapper = ({ steps, activeStep, setActiveStep }) => {
     <Formik
       initialValues={user}
       validationSchema={activeStep === 0 ? ContactSchema : LocationSchema}
-      onSubmit={values =>
+      onSubmit={(values) =>
         handleNext(
           values,
           activeStep,
@@ -161,7 +161,7 @@ const FormWrapper = ({ steps, activeStep, setActiveStep }) => {
         )
       }
     >
-      {props => (
+      {(props) => (
         <Form>
           {activeStep === 0 ? (
             <ContactInfo {...props} />

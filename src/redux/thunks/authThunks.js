@@ -1,56 +1,59 @@
-import { axiosWithBaseURL } from '../../utils/axios/axiosWithBaseUrl'
-import axiosWithAuth from '../../utils/axios/axiosWithAuth'
 import { setAuthError, setUserType, setUserInfo } from '../slices/authSlice'
+import { Auth } from 'aws-amplify'
+import jwtDecode from 'jwt-decode'
+import { postMember } from './memThunks'
 
-export const login = (values, push) => async dispatch => {
+export const login = ({ email, password }) => async (dispatch) => {
   try {
-    const { data } = await axiosWithBaseURL().post('/login', values)
-    localStorage.setItem('token', data.token)
-    localStorage.setItem('firstName', data.user.first_name)
-    dispatch(setUserType(data.user.type))
-    dispatch(setUserInfo(data.user))
-    if (data.user.type === 'admins') {
-      push('/dashboard')
-    } else if (data.user.type === 'families' || data.user.type === 'neighbors')
-      push('/userProfile')
-  } catch (e) {
-    localStorage.setItem('token', false)
-    e.response
-      ? dispatch(setAuthError(e.response.data))
-      : dispatch(setAuthError(e))
+    const { attributes } = await Auth.signIn(email, password)
+
+    const session = await Auth.currentSession()
+    const sessionIdInfo = jwtDecode(session.getIdToken().jwtToken)
+    const userType = sessionIdInfo['cognito:groups'][0]
+
+    dispatch(setUserType(userType))
+
+    dispatch(
+      setUserInfo({
+        email: attributes.email,
+        first_name: attributes['custom:first_name'] || '',
+      })
+    )
+  } catch (error) {
+    dispatch(setAuthError(error.message))
+    // console.log(error)
   }
 }
 
-export const register = ({ first_name, email, password }) => async dispatch => {
+export const register = (user, push) => async (dispatch) => {
   try {
-    const { data } = await axiosWithBaseURL().post('/register', {
-      first_name,
-      email,
-      password,
+    await Auth.signUp({
+      username: user.email,
+      password: user.password,
+      attributes: {
+        'custom:type': user.type,
+      },
     })
-    localStorage.setItem('token', data.token)
-    localStorage.setItem('firstName', data.user.first_name)
-    dispatch(setUserInfo(data.user.saved))
-  } catch (e) {
-    localStorage.setItem('token', false)
-    e.response
-      ? dispatch(setAuthError(e.response.data))
-      : dispatch(setAuthError(e))
+
+    delete user.password
+    delete user.confirmPassword
+
+    dispatch(postMember(user, push))
+  } catch (error) {
+    dispatch(setAuthError(error.message))
+    // console.log(error)
   }
 }
 
-export const logout = () => async dispatch => {
+export const logout = (push) => async (dispatch) => {
   try {
-    await axiosWithAuth().get('/logout')
-    localStorage.setItem('token', false)
-    localStorage.setItem('firstName', '')
+    await Auth.signOut()
+
     dispatch(setUserInfo(null))
-  } catch (e) {
-    localStorage.setItem('token', false)
-    localStorage.setItem('firstName', '')
-    dispatch(setUserInfo(null))
-    e.response
-      ? dispatch(setAuthError(e.response.data))
-      : dispatch(setAuthError(e))
+    dispatch(setUserType(null))
+  } catch (error) {
+    dispatch(setAuthError(error.message))
+    // console.log(error)
   }
+  push('/login')
 }

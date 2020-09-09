@@ -75,7 +75,7 @@ export const Input = styled(Field)`
   width: 100%;
   margin: 25px 0 0;
   font-size: 1.8rem;
-  height: ${props => (props.height ? props.height : '6rem')};
+  height: ${(props) => (props.height ? props.height : '6rem')};
   padding: 20px 15px;
   background: #f9f9f9;
   border-radius: 4px 4px 0 0;
@@ -106,8 +106,8 @@ export const Checkbox = styled.span`
   border: 2px solid #757575;
   height: 20px;
   width: 20px;
-  background: ${props => (props.checked ? '#c4c4c4' : '#fff')};
-  border-radius: ${props => (props.radio ? '100%' : 0)};
+  background: ${(props) => (props.checked ? '#c4c4c4' : '#fff')};
+  border-radius: ${(props) => (props.radio ? '100%' : 0)};
 `
 
 export const Error = styled.p`
