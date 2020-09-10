@@ -20,7 +20,7 @@ const pickColor = (status) =>
     ? 'green'
     : status === 3
     ? 'red'
-    : 'orange'
+    : 'grey'
 
 const columns = [
   { Header: 'FULL NAME', accessor: 'name' },
@@ -85,7 +85,7 @@ function mapping(members) {
       state: data.state,
       zip: data.zip,
       userType: data.type,
-      application: data.application,
+      application: data.application.app_status,
       background: data.background,
       training: data.training,
       email: data.email,
